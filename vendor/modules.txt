@@ -1,0 +1,34 @@
+# github.com/glycerine/go-capnproto v0.0.0-20190118050403-2d07de3aa7fc
+## explicit
+github.com/glycerine/go-capnproto
+# github.com/glycerine/goconvey v0.0.0-20190410193231-58a59202ab31
+## explicit
+github.com/glycerine/goconvey/convey
+github.com/glycerine/goconvey/convey/assertions
+github.com/glycerine/goconvey/convey/assertions/oglematchers
+github.com/glycerine/goconvey/convey/gotest
+github.com/glycerine/goconvey/convey/reporting
+# github.com/glycerine/gommap v0.0.0-20131202084435-e87a6e482c2c
+## explicit
+github.com/glycerine/gommap
+# github.com/glycerine/rbtree v0.0.0-20190406191118-ceb71889d809
+## explicit
+github.com/glycerine/rbtree
+# github.com/gopherjs/gopherjs v1.17.2
+## explicit
+github.com/gopherjs/gopherjs/js
+# github.com/jtolds/gls v4.20.0+incompatible
+github.com/jtolds/gls
+# github.com/philhofer/fwd v1.1.1
+github.com/philhofer/fwd
+# github.com/shurcooL/go v0.0.0-20200502201357-93f07166e636
+github.com/shurcooL/go/parserutil
+github.com/shurcooL/go/printerutil
+github.com/shurcooL/go/reflectfind
+github.com/shurcooL/go/reflectsource
+# github.com/shurcooL/go-goon v0.0.0-20210110234559-7585751d9a17
+## explicit
+github.com/shurcooL/go-goon
+# github.com/tinylib/msgp v1.1.6
+## explicit
+github.com/tinylib/msgp/msgp

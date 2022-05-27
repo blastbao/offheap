@@ -3,7 +3,7 @@ package offheap
 import (
 	"fmt"
 
-	xxh64 "github.com/glycerine/xxhash-64"
+	//xxh64 "github.com/glycerine/xxhash-64"
 )
 
 // ByteKeyHashTable shows how to specialize HashTable to
