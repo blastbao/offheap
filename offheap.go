@@ -55,6 +55,7 @@ func NewHashFileBacked(initialSize int64, filepath string) *HashTable {
 		t.ArraySize = uint64(initialSize)
 		t.Mmm = *Malloc(t.bytesFromArraySizeAndHeader(t.ArraySize), filepath)
 	}
+
 	//p("&t.Mmm.Mem[0] = %p\n", &t.Mmm.Mem[0])
 	t.OffheapHeader = t.Mmm.Mem
 	t.OffheapCells = t.Mmm.Mem[MetadataHeaderMaxBytes:]

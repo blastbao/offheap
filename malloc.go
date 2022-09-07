@@ -82,17 +82,15 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 	if path == "" {
 		flags = syscall.MAP_ANON | syscall.MAP_PRIVATE
 		mm.Fd = -1
-
 		if numBytes < 0 {
 			panic("numBytes was negative but path was also empty: don't know how much to allocate!")
 		}
-
 	} else {
-
+		// 不能是目录
 		if dirExists(mm.Path) {
 			panic(fmt.Sprintf("path '%s' already exists as a directory, so cannot be used as a memory mapped file.", mm.Path))
 		}
-
+		// 不存在则创建文件，存在则打开
 		if !fileExists(mm.Path) {
 			file, err := os.Create(mm.Path)
 			if err != nil {
@@ -106,6 +104,7 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 			}
 			mm.File = file
 		}
+		// 提取 FD
 		mm.Fd = int(mm.File.Fd())
 	}
 
@@ -113,13 +112,11 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 	if path != "" {
 		// file-backed memory
 		if numBytes < 0 {
-
 			var stat syscall.Stat_t
 			if err := syscall.Fstat(mm.Fd, &stat); err != nil {
 				panic(err)
 			}
 			sz = stat.Size
-
 		} else {
 			// set to the size requested
 			err := syscall.Ftruncate(mm.Fd, numBytes)
@@ -129,23 +126,21 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 		}
 		mm.FileBytesLen = sz
 	}
+
 	// INVAR: sz holds non-negative length of memory/file.
 
 	mm.BytesAlloc = sz
-
 	prot := syscall.PROT_READ | syscall.PROT_WRITE
 
 	vprintf("\n ------->> path = '%v',  mm.Fd = %v, with flags = %x, sz = %v,  prot = '%v'\n", path, mm.Fd, flags, sz, prot)
 
+	// 调用 mmap 创建堆外内存，获取 []byte
 	var mmap []byte
 	var err error
 	if mm.Fd == -1 {
-
 		flags = syscall.MAP_ANON | syscall.MAP_PRIVATE
 		mmap, err = syscall.Mmap(-1, 0, int(sz), prot, flags)
-
 	} else {
-
 		flags = syscall.MAP_SHARED
 		mmap, err = syscall.Mmap(mm.Fd, 0, int(sz), prot, flags)
 	}
@@ -178,8 +173,7 @@ func (mm *MmapMalloc) BackgroundSync() {
 func Growmap(oldmap *MmapMalloc, newSize int64) (newmap *MmapMalloc, err error) {
 
 	if oldmap.Path == "" || oldmap.Fd <= 0 {
-		return nil, fmt.Errorf("oldmap must be mapping to " +
-			"actual file, so we can grow it")
+		return nil, fmt.Errorf("oldmap must be mapping to actual file, so we can grow it")
 	}
 	if newSize <= oldmap.BytesAlloc || newSize <= oldmap.FileBytesLen {
 		return nil, fmt.Errorf("mapping in Growmap must be larger than before")
@@ -193,8 +187,7 @@ func Growmap(oldmap *MmapMalloc, newSize int64) (newmap *MmapMalloc, err error) 
 	err = syscall.Ftruncate(newmap.Fd, newSize)
 	if err != nil {
 		panic(err)
-		return nil, fmt.Errorf("syscall.Ftruncate to grow %v -> %v"+
-			" returned error: '%v'", oldmap.BytesAlloc, newSize, err)
+		return nil, fmt.Errorf("syscall.Ftruncate to grow %v -> %v returned error: '%v'", oldmap.BytesAlloc, newSize, err)
 	}
 	newmap.FileBytesLen = newSize
 	newmap.BytesAlloc = newSize
