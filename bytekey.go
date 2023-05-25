@@ -51,6 +51,7 @@ func minimum(a, b int) int {
 
 // LookupBK is the lookup function for []byte keys. By default only len(Key_t) bytes are used in the key.
 func (t *ByteKeyHashTable) LookupBK(bytekey []byte) (Val_t, bool) {
+	// 计算 Hash 值
 	xxHasher64.Reset()
 	min := minimum(len(Key_t{}), len(bytekey))
 	_, err := xxHasher64.Write(bytekey[:min])
@@ -58,10 +59,14 @@ func (t *ByteKeyHashTable) LookupBK(bytekey []byte) (Val_t, bool) {
 		panic(err)
 	}
 	hashkey := xxHasher64.Sum64()
+
+	// 查找 Hash 槽
 	cell := (*HashTable)(t).Lookup(hashkey)
 	if cell == nil {
 		return Val_t{}, false
 	}
+
+	// 返回 Value
 	return cell.Value, true
 }
 

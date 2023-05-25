@@ -31,9 +31,9 @@ type HashTable struct {
 	Population    uint64
 	ZeroUsed      bool
 	ZeroCell      Cell
-	OffheapHeader []byte     `msg:"-"`
-	OffheapCells  []byte     `msg:"-"`
-	Mmm           MmapMalloc `msg:"-"`
+	OffheapHeader []byte     `msg:"-"`	//
+	OffheapCells  []byte     `msg:"-"`	//
+	Mmm           MmapMalloc `msg:"-"`	//
 }
 
 // Create a new hash table, able to hold initialSize count of keys.
@@ -42,10 +42,11 @@ func NewHashTable(initialSize int64) *HashTable {
 }
 
 func NewHashFileBacked(initialSize int64, filepath string) *HashTable {
+
 	//fmt.Printf("\n\n  NewHashFileBacked called!\n\n")
 	t := HashTable{
 		MagicNumber: 3030675468910466832,
-		CellSz:      uint64(unsafe.Sizeof(Cell{})),
+		CellSz:      uint64(unsafe.Sizeof(Cell{})), // 计算每个 Cell 大小
 	}
 
 	// off-heap and off-gc version
@@ -97,6 +98,7 @@ type Key_t [64]byte
 // size at the very least.
 type Val_t [56]byte
 
+
 // Cell is the basic payload struct, stored inline in the HashTable. The
 // cell is returned by the fundamental Lookup() function. The member
 // Value is where the value that corresponds to the key (in ByteKey)
@@ -111,6 +113,8 @@ type Cell struct {
 	ByteKey     Key_t
 	Value       Val_t // customize this to hold your value's data type entirely here.
 }
+
+
 
 /*
 SetValue stores any value v in the Cell. Note that
@@ -223,27 +227,30 @@ func (t *HashTable) DestroyHashTable() {
 
 // Lookup a cell based on a uint64 key value. Returns nil if key not found.
 func (t *HashTable) Lookup(key uint64) *Cell {
-
 	var cell *Cell
-
 	if key == 0 {
 		if t.ZeroUsed {
 			return &t.ZeroCell
 		}
 		return nil
-
 	} else {
 		//p("for t = %p, t.ArraySize = %v", t, t.ArraySize)
-		h := integerHash(uint64(key)) % t.ArraySize
 
+		// 取模，定位到 Cell
+		h := integerHash(uint64(key)) % t.ArraySize
+		// 顺序查找 Cell
 		for {
+			// 定位到 Cell
 			cell = t.CellAt(h)
+			// 是否找到 key
 			if cell.UnHashedKey == key {
 				return cell
 			}
+			// 是否已找完
 			if cell.UnHashedKey == 0 {
 				return nil
 			}
+			// 继续探查下一个 cell
 			h++
 			if h == t.ArraySize {
 				h = 0
@@ -273,6 +280,8 @@ func (t *HashTable) Insert(key uint64) (*Cell, bool) {
 	if key != 0 {
 
 		for {
+
+			// 定位 Cell
 			h := integerHash(uint64(key)) % t.ArraySize
 
 			for {
@@ -281,7 +290,10 @@ func (t *HashTable) Insert(key uint64) (*Cell, bool) {
 					// already exists
 					return cell, false
 				}
+
+				// 当前 Cell 为空，可以插入
 				if cell.UnHashedKey == 0 {
+
 					if (t.Population+1)*4 >= t.ArraySize*3 {
 						vprintf("detected (t.Population+1)*4 >= t.ArraySize*3, i.e. %v >= %v, calling Repop with double the size\n", (t.Population+1)*4, t.ArraySize*3)
 						t.Repopulate(t.ArraySize * 2)
@@ -293,6 +305,7 @@ func (t *HashTable) Insert(key uint64) (*Cell, bool) {
 					return cell, true
 				}
 
+				// 继续探查
 				h++
 				if h == t.ArraySize {
 					h = 0
