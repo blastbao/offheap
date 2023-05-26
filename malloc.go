@@ -58,7 +58,7 @@ func (mm *MmapMalloc) Free() {
 	}
 }
 
-// Malloc() creates a new memory region that is provided directly
+// Malloc creates a new memory region that is provided directly
 // by OS via the mmap() call, and is thus not scanned by the Go
 // garbage collector.
 //
@@ -71,7 +71,6 @@ func (mm *MmapMalloc) Free() {
 // to allocate, and the function will panic.
 //
 // The returned value's .Mem member holds a []byte pointing to the returned memory (as does .MMap, for use in other gommap calls).
-//
 func Malloc(numBytes int64, path string) *MmapMalloc {
 
 	mm := MmapMalloc{
@@ -160,7 +159,7 @@ func (mm *MmapMalloc) BlockUntilSync() {
 	mm.MMap.Sync(gommap.MS_SYNC)
 }
 
-// BackgroundSync() schedules a sync to disk, but may return before it is done.
+// BackgroundSync schedules a sync to disk, but may return before it is done.
 // Without a call to either BackgroundSync() or BlockUntilSync(), there
 // is no guarantee that file has ever been written to disk at any point before
 // the munmap() call that happens during Free(). See the man pages msync(2)

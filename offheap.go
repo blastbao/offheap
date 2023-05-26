@@ -446,6 +446,8 @@ func (t *HashTable) DeleteKey(key uint64) {
 }
 
 // Repopulate expands the hashtable to the desiredSize count of cells.
+//
+// 扩容
 func (t *HashTable) Repopulate(desiredSize uint64) {
 
 	//p("top of Repopulate(%v)", desiredSize)
